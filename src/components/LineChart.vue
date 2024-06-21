@@ -10,7 +10,7 @@
             </canvas>
 
             <div id="zero">
-                0
+
             </div>
             <div id="timeline"><span v-for="i in data.timeline" :key="i">{{ i }}</span></div>
         </div>
@@ -43,12 +43,17 @@ onMounted(() => {
     let main = document.getElementById('main');
     let gridContainer = document.getElementById('gridContainer')
 
+    main.style.color = props.colorText;
     main.style.width = props.width;
     main.style.height = props.height;
+    main.style.backgroundColor = props.bgColor;
+    main.style.borderRadius = props.borderRaduisDiagram + 'px';
+
     let canvas = document.getElementById("canvas");
-    canvas.style.backgroundColor = 'transparent';
-    canvas.width = props.width.split('px')[0] - 50;
-    canvas.height = props.height.split('px')[0];
+
+    canvas.width = props.width.split('px')[0] - document.getElementById('quantity').offsetWidth;
+    canvas.height = props.height.split('px')[0] - document.getElementById('timeline').offsetHeight;
+
     let ctx = canvas.getContext("2d");
 
     ctx.beginPath();
@@ -58,10 +63,32 @@ onMounted(() => {
         const x = (i / (props.data.timeline.length - 1)) * canvas.width;
         const y = canvas.height - (props.data.values[i] / Math.max(...props.data.values) * canvas.height);
         ctx.lineTo(x, y);
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
     }
 
+    ctx.strokeStyle = props.lineColor;
+    ctx.lineCap = 'round';
     ctx.stroke();
     ctx.closePath();
+
+    function drawGrid() {
+        for (let x = 0; x <= canvas.width; x += canvas.width / props.data.timeline.length) {
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height);
+        }
+
+        for (let y = 0; y <= canvas.height; y += canvas.height / quantity.value.length) {
+            ctx.moveTo(0, y);
+            ctx.lineTo(canvas.width, y);
+        }
+        ctx.lineWidth = 1;
+
+        ctx.strokeStyle = '#ddddddcc';
+
+        ctx.stroke();
+        ctx.closePath();
+    }
 
     quantity.value = props.data.values.sort(function (a, b) { return a - b }).reverse();
     quantity.value = [...new Set(quantity.value)];
@@ -69,13 +96,8 @@ onMounted(() => {
     gridContainer.style.gridTemplateColumns = `repeat(${props.data.timeline.length}, 1fr)`;
     gridContainer.style.gridTemplateRows = `repeat(${quantity.value.length}, 1fr)`;
 
-    for (let i = 0; i < (quantity.value.length * props.data.timeline.length); i++) {
-        let gridDiv = document.createElement('div')
-        gridDiv.style.width = '100%'
-        gridDiv.style.height = '100%'
-        gridDiv.style.border = '.6px gray solid'
-        gridContainer.appendChild(gridDiv)
-    }
+
+
 
 })
 
@@ -109,13 +131,11 @@ onMounted(() => {
     grid-area: quantity;
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
 }
 
 #quantity span {
-    width: 100%;
-    height: 100%;
     display: flex;
     justify-content: center;
     align-items: start;
@@ -125,23 +145,21 @@ onMounted(() => {
     grid-area: timeline;
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
 }
 
 #timeline span {
-    width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 
 #canvas {
     grid-area: canvas;
     display: flex;
     align-items: end;
-    width: 100%;
-    height: 100%;
     position: relative;
     /* transform: rotate(-180deg); */
 }
