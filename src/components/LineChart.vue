@@ -5,7 +5,7 @@
 
 
             <canvas id="canvas">
-                <div id="gridContainer" v-if="gridState == true"></div>
+
 
             </canvas>
 
@@ -41,7 +41,6 @@ const quantity = ref();
 
 onMounted(() => {
     let main = document.getElementById('main');
-    let gridContainer = document.getElementById('gridContainer')
 
     main.style.color = props.colorText;
     main.style.width = props.width;
@@ -72,37 +71,27 @@ onMounted(() => {
     ctx.stroke();
     ctx.closePath();
 
-    function drawGrid() {
-        for (let x = 0; x <= canvas.width; x += canvas.width / props.data.timeline.length) {
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
-        }
+    console.log(canvas.width, canvas.height)
 
-        for (let y = 0; y <= canvas.height; y += canvas.height / quantity.value.length) {
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-        }
-        ctx.lineWidth = 1;
 
-        ctx.strokeStyle = '#ddddddcc';
+    let ctxGrid = canvas.getContext('2d');
+    ctxGrid.lineWidth = 1;
+    ctxGrid.strokeStyle = 'black';
 
-        ctx.stroke();
-        ctx.closePath();
-    }
+    ctxGrid.moveTo(0, 0);
+    ctxGrid.lineTo(0, canvas.height);
+    ctxGrid.moveTo(0, 0);
+    ctxGrid.lineTo(canvas.width, 0);
+
+    ctxGrid.stroke();
+
+
 
     quantity.value = props.data.values.sort(function (a, b) { return a - b }).reverse();
     quantity.value = [...new Set(quantity.value)];
 
-    gridContainer.style.gridTemplateColumns = `repeat(${props.data.timeline.length}, 1fr)`;
-    gridContainer.style.gridTemplateRows = `repeat(${quantity.value.length}, 1fr)`;
-
-
-
 
 })
-
-
-
 </script>
 
 <style scoped>
